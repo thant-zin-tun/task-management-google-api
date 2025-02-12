@@ -39,7 +39,7 @@ export function LoginScreen() {
             client_id: clientId,
             client_secret: clientSecret,
             code: code,
-            redirect_uri: `http://localhost:5173`,
+            redirect_uri: import.meta.env.BASE_URL,
           },
           {
             headers: {
