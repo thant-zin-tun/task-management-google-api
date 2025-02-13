@@ -4,7 +4,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 
 const router = createRouter({
   routeTree,
-  basepath: "https://task-management-google-tasks-api.vercel.app",
+  basepath: "/",
 });
 
 declare module "@tanstack/react-router" {
