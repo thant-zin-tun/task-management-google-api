@@ -11,7 +11,7 @@ import Cookies from "universal-cookie";
 import { checkToken } from "../services/check_token";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
-import { clientId, clientSecret } from "../main";
+import { clientId, clientSecret, domain } from "../main";
 const cookies = new Cookies();
 
 export const Route = createFileRoute("/signup")({
@@ -39,7 +39,9 @@ export function SingUpScreen() {
             client_id: clientId,
             client_secret: clientSecret,
             code: code,
-            redirect_uri: "https://task-management-google-tasks-api.vercel.app",
+            // redirect_uri: "https://task-management-google-tasks-api.vercel.app",
+            // redirect_uri: "http://localhost:5173",
+            redirect_uri: domain,
           }
         );
         const ACT = tokenResponse.data.access_token;

@@ -11,7 +11,7 @@ import google from "../assets/google.png";
 import Cookies from "universal-cookie";
 import { checkToken } from "../services/check_token";
 import axios from "axios";
-import { clientId, clientSecret } from "../main";
+import { clientId, clientSecret, domain } from "../main";
 const cookies = new Cookies();
 
 export const Route = createFileRoute("/signin")({
@@ -39,7 +39,8 @@ export function LoginScreen() {
             client_id: clientId,
             client_secret: clientSecret,
             code: code,
-            redirect_uri: "https://task-management-google-tasks-api.vercel.app",
+            // redirect_uri: "https://task-management-google-tasks-api.vercel.app",
+            redirect_uri: domain,
           },
           {
             headers: {
