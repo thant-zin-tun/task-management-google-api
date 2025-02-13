@@ -4,6 +4,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 
 const router = createRouter({
   routeTree,
+  basepath: "/",
 });
 
 declare module "@tanstack/react-router" {
