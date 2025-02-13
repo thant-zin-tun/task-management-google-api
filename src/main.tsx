@@ -11,6 +11,7 @@ import CustomFont from "./assets/fonts/myFont.ttf";
 
 export const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 export const clientSecret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
+export const domain = import.meta.env.VITE_BASE_URL;
 
 const theme = createTheme({
   typography: {

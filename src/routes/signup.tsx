@@ -39,7 +39,7 @@ export function SingUpScreen() {
             client_id: clientId,
             client_secret: clientSecret,
             code: code,
-            redirect_uri: `http://localhost:5173`,
+            redirect_uri: "postmessage",
           }
         );
         const ACT = tokenResponse.data.access_token;

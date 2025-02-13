@@ -25,7 +25,7 @@ export const Route = createFileRoute("/signin")({
     }
   },
 });
-
+// import.meta.env.PROD ? "/your-base-path" : "/"
 export function LoginScreen() {
   const router = useRouter();
   const googleLogin = useGoogleLogin({
@@ -39,7 +39,7 @@ export function LoginScreen() {
             client_id: clientId,
             client_secret: clientSecret,
             code: code,
-            redirect_uri: import.meta.env.BASE_URL,
+            redirect_uri: "postmessage",
           },
           {
             headers: {
@@ -59,6 +59,7 @@ export function LoginScreen() {
     },
     flow: "auth-code",
     scope: "https://www.googleapis.com/auth/tasks",
+    redirect_uri: "postmessage",
   });
   return (
     <Box
