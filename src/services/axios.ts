@@ -5,16 +5,19 @@ import { baseUrl } from "../constants/baseUrl";
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: baseUrl,
+  headers: {
+    "Cache-Control": "no-cache",
+  },
 });
 
-const cookies = new Cookies();
+export const cookies = new Cookies();
 
 axiosInstance.interceptors.response.use(
   (response: any) => response,
   async (error: any) => {
     if (error.response && error.response.status === 401) {
-      console.log("Unauthorized!");
       cookies.remove("ACT");
+      window.location.href = "/";
     }
     return Promise.reject(error);
   }

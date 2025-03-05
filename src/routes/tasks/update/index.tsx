@@ -34,6 +34,7 @@ import { Task } from "../../../types/tast-types";
 import { ChangeEvent, useReducer } from "react";
 import { updateTasksDetailByID } from "../../../services/apiServices";
 import { useMutation } from "@tanstack/react-query";
+import { queryClient } from "../../../main";
 
 const style = {
   py: 0,
@@ -56,7 +57,7 @@ const IOSSwitch = styled((props: SwitchProps) => (
       transform: "translateX(25px)",
       color: "#fff",
       "& + .MuiSwitch-track": {
-        backgroundColor: "#65C466",
+        backgroundColor: "primary.main",
         opacity: 1,
         border: 0,
         ...theme.applyStyles("dark", {
@@ -169,7 +170,6 @@ function TaskEditDetail() {
       console.error("Error deleting task:", error);
     },
   });
-
   return (
     <Box
       component="div"

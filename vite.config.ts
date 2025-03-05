@@ -15,4 +15,9 @@ export default defineConfig({
       "@constants": "/src/constants",
     },
   },
+  server: {
+    headers: {
+      "Cross-Origin-Embedder-Policy": "unsafe-none", // added this part
+    },
+  },
 });

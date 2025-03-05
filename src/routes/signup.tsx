@@ -1,8 +1,8 @@
 import {
-  createFileRoute,
   redirect,
   Link,
   useRouter,
+  createFileRoute,
 } from "@tanstack/react-router";
 import { Box, Typography } from "@mui/material";
 
@@ -12,6 +12,7 @@ import { checkToken } from "../services/check_token";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { clientId, clientSecret, domain } from "../main";
+
 const cookies = new Cookies();
 
 export const Route = createFileRoute("/signup")({
@@ -45,7 +46,6 @@ export function SingUpScreen() {
           }
         );
         const ACT = tokenResponse.data.access_token;
-        console.log("Google Tasks API Access Token:", ACT);
         cookies.set("ACT", ACT);
         router.navigate({ to: "/tasks", replace: true });
       } catch (error) {

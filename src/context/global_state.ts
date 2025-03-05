@@ -1,11 +1,9 @@
-import { createContext } from "react";
-import { Task, TaskListsArr } from "../types/tast-types";
+import { createContext, Dispatch, SetStateAction } from "react";
 
 type TaskContextType = {
   taskListID: string | null;
-  taskLists: TaskListsArr | [];
-  tasks: Task[] | [];
   updateTasks: (id: string) => void;
+  setTaskListID: Dispatch<SetStateAction<string | null>>;
 };
 
 export const TaskContext = createContext<TaskContextType | undefined>(

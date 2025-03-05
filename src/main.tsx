@@ -35,11 +35,12 @@ const theme = createTheme({
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
       retry: 3,
-      retryOnMount: true,
       refetchOnReconnect: true,
-      refetchOnMount: "always",
+      refetchOnMount: true,
+      staleTime: 0,
+      gcTime: 0,
     },
   },
 });

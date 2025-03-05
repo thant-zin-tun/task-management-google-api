@@ -8,13 +8,11 @@ const ToDoCard = ({
   notes,
   status,
   id,
-  index,
 }: {
   title: string;
   notes: string;
   status: string;
   id: string;
-  index: number;
 }) => {
   return (
     <Link
@@ -22,28 +20,39 @@ const ToDoCard = ({
       params={{ id: id }}
       style={{ textDecoration: "none", width: "100%" }}
     >
-      <AnimationContainerWithFramer delay={index * 0.03}>
+      <AnimationContainerWithFramer delay={0.3}>
         <Card
           elevation={3}
           variant="outlined"
           sx={{
             display: "flex",
+            flexDirection: "column",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: "flex-start",
             borderRadius: "8px",
             width: "100%",
-            backgroundColor: status == "needsAction" ? "" : "cadetblue",
-            color: status == "needsAction" ? "" : "white",
+            backgroundColor: "#fff",
+            color: "#000",
+            boxShadow:
+              "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
+            borderColor: status == "needsAction" ? "error" : "InfoBackground",
+            borderWidth: 0.5,
+            transition: "all 0.3s linear",
+            "&:hover": {
+              boxShadow:
+                "0 4px 8px rgba(0, 0, 0, 0.16), 0 4px 8px rgba(0, 0, 0, 0.23)",
+              transform: "scale(0.98)",
+            },
           }}
         >
           <Box
             padding={2}
             sx={{
-              width: "75%",
+              width: "100%",
             }}
           >
             <Typography
-              variant="subtitle1"
+              variant="h6"
               fontWeight="bold"
               textOverflow="ellipsis"
               overflow="hidden"
@@ -52,27 +61,40 @@ const ToDoCard = ({
               {title}
             </Typography>
             <Typography
-              variant="subtitle2"
-              color="disabled"
+              variant="body2"
+              color="textSecondary"
               textOverflow="ellipsis"
               overflow="hidden"
               whiteSpace="nowrap"
-              marginTop={1}
             >
               {notes}
             </Typography>
           </Box>
 
-          <Box flexGrow={1} display="flex" justifyContent="end">
+          <Box
+            padding={2}
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderTop: "1px solid #e0e0e0",
+            }}
+          >
+            <Typography
+              variant="caption"
+              color={status == "needsAction" ? "error" : "success"}
+            >
+              {status == "needsAction" ? "Needs Action" : "Completed"}
+            </Typography>
             <Button
               variant="contained"
               size="small"
               disabled={status == "needsAction"}
               color={status == "completed" ? "success" : "primary"}
               sx={{
-                color: "white",
-                marginRight: 2,
                 textTransform: "capitalize",
+                borderRadius: "20px",
               }}
             >
               {status == "needsAction"

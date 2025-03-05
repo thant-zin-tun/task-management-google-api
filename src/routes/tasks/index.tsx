@@ -1,4 +1,9 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  redirect,
+  Outlet,
+  useRouter,
+} from "@tanstack/react-router";
 
 import {
   Box,
@@ -8,24 +13,38 @@ import {
   Toolbar,
   IconButton,
   Tooltip,
-  Grid2,
-  CircularProgress,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
-import { Filter1Sharp, SearchOutlined } from "@mui/icons-material";
+import { Logout, SearchOutlined } from "@mui/icons-material";
 
 import CreateTaskDialog from "../../components/DialogBox";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { checkToken } from "../../services/check_token";
-
 import DrawerCom from "../../components/DrawerCom";
-
 import TaskCard from "../../components/card/TaskCard";
 import { useTaskHook } from "../../hooks/useTaskHook";
 
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  fetchTaskListsFunc,
+  fetchTasksByTaskListIDFunc,
+} from "../../services/apiServices";
+import { TaskList, TasksArr } from "../../types/tast-types";
+
+import { useInView } from "react-intersection-observer";
+import { cookies } from "../../services/axios";
+import {
+  getSessionStorage,
+  setSessionStorage,
+} from "../../utils/sessionStorage";
+
+import { ToastContainer } from "react-toastify";
+
 export const Route = createFileRoute("/tasks/")({
+  notFoundComponent: () => <h1>Task Not Found</h1>,
   component: () => <HomeScreen />,
   beforeLoad: () => {
     const token = checkToken();
@@ -39,8 +58,37 @@ export const Route = createFileRoute("/tasks/")({
 
 const HomeScreen = () => {
   const [open, setOpen] = useState<boolean>(false);
-  const { taskListID, taskLists, tasks } = useTaskHook();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { taskListID, setTaskListID } = useTaskHook();
+
+  const router = useRouter();
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
+  const { data: taskLists } = useQuery<TaskList[]>({
+    queryKey: ["taskLists"],
+    queryFn: fetchTaskListsFunc,
+  });
+  const {
+    data: tasks,
+    isPending,
+    isError,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery<TasksArr>({
+    queryKey: ["tasks", taskListID],
+    initialPageParam: undefined,
+    queryFn: ({ pageParam }) => {
+      return fetchTasksByTaskListIDFunc(taskListID!, {
+        pageParamNextPageToken: pageParam as string,
+      });
+    },
+    enabled: !!taskListID,
+    getNextPageParam: (lastPage) => {
+      return lastPage.nextPageToken;
+    },
+  });
 
   const chooseTaskListID = useMemo(() => {
     if (!taskLists) return undefined;
@@ -48,8 +96,32 @@ const HomeScreen = () => {
     return newTaskLists[0]?.title;
   }, [taskLists, taskListID]);
 
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
+
+  const handleTaskListID = () => {
+    let taskListIDFromStorage = getSessionStorage("task_list_id");
+    if (taskListIDFromStorage) {
+      setTaskListID(taskListIDFromStorage);
+    } else {
+      if (taskLists && taskLists.length > 0) {
+        setTaskListID(taskLists[0].id);
+        setSessionStorage("task_list_id", taskLists[0].id);
+      }
+    }
+  };
+
+  useEffect(() => {
+    handleTaskListID();
+  }, [taskLists]);
+
   return (
     <>
+      <ToastContainer />
+
       <Box
         component="div"
         display="flex"
@@ -63,8 +135,13 @@ const HomeScreen = () => {
           height: "100%",
         }}
       >
-        <CreateTaskDialog open={open} setOpen={setOpen} isCreate />
-        {/* Header with date selector */}
+        <CreateTaskDialog
+          open={open}
+          setOpen={setOpen}
+          taskLists={taskLists!}
+          isTaskCreate="tasks"
+        />
+
         <AppBar
           position="sticky"
           elevation={1}
@@ -91,59 +168,65 @@ const HomeScreen = () => {
             <Box sx={{ flexGrow: 1 }} textAlign="center">
               <Typography variant="h6">{chooseTaskListID}</Typography>
             </Box>
-            <Tooltip title="Filter">
-              <Button color="inherit">
-                <Filter1Sharp color="disabled" />
-              </Button>
-            </Tooltip>
-            <Tooltip title="Filter">
+            <Tooltip title="Search">
               <Button color="inherit">
                 <SearchOutlined color="disabled" />
               </Button>
             </Tooltip>
+            <Tooltip title="Logout">
+              <Button
+                color="error"
+                variant="contained"
+                onClick={() => {
+                  cookies.remove("ACT");
+                  router.navigate({
+                    to: "/",
+                  });
+                }}
+              >
+                <Logout />
+              </Button>
+            </Tooltip>
           </Toolbar>
-          <DrawerCom drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
+          <DrawerCom
+            drawerOpen={drawerOpen}
+            setDrawerOpen={setDrawerOpen}
+            taskLists={taskLists!}
+            taskListID={taskListID!}
+          />
         </AppBar>
 
         <Box
           flexGrow={1}
           display="flex"
+          flexDirection={"column"}
           alignItems="start"
           sx={{
             overflowY: "auto",
             overflowX: "hidden",
           }}
         >
-          {tasks.length == 0 ? (
-            <Grid2
-              container
-              spacing={2}
-              sx={{ mt: 1, height: "100%", width: "100%" }}
+          <TaskCard
+            tasks={tasks?.pages.flatMap((page) => page.tasks)}
+            isPending={isPending}
+            isError={isError}
+          />
+          {hasNextPage ? (
+            <Box
               display="flex"
-              justifyContent={"center"}
-              alignItems={"center"}
+              justifyContent="center"
+              ref={ref}
+              height={60}
+              width={"100%"}
+              paddingBlock={1}
             >
-              <Box display="flex" justifyContent="center" alignItems="center">
-                <CircularProgress size={50} />
-              </Box>
-            </Grid2>
-          ) : (
-            <Grid2
-              container
-              spacing={2}
-              sx={{ mt: 1, width: "100%" }}
-              display="flex"
-              justifyContent={"start"}
-              alignItems={"start"}
-            >
-              <TaskCard />
-            </Grid2>
-          )}
+              <CircularProgress size={40} />
+            </Box>
+          ) : null}
         </Box>
 
         <Divider />
 
-        {/* Footer button */}
         <Box
           marginTop={2}
           textAlign="center"
@@ -161,6 +244,7 @@ const HomeScreen = () => {
           New Task
         </Box>
       </Box>
+      <Outlet />
     </>
   );
 };

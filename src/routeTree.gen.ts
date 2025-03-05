@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as SignupImport } from './routes/signup'
 import { Route as SigninImport } from './routes/signin'
+import { Route as TasksRouteImport } from './routes/tasks/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as TasksIndexImport } from './routes/tasks/index'
 import { Route as TasksIdImport } from './routes/tasks/$id'
@@ -32,6 +33,12 @@ const SigninRoute = SigninImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const TasksRouteRoute = TasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -39,21 +46,21 @@ const IndexRoute = IndexImport.update({
 } as any)
 
 const TasksIndexRoute = TasksIndexImport.update({
-  id: '/tasks/',
-  path: '/tasks/',
-  getParentRoute: () => rootRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => TasksRouteRoute,
 } as any)
 
 const TasksIdRoute = TasksIdImport.update({
-  id: '/tasks/$id',
-  path: '/tasks/$id',
-  getParentRoute: () => rootRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => TasksRouteRoute,
 } as any)
 
 const TasksUpdateIndexRoute = TasksUpdateIndexImport.update({
-  id: '/tasks/update/',
-  path: '/tasks/update/',
-  getParentRoute: () => rootRoute,
+  id: '/update/',
+  path: '/update/',
+  getParentRoute: () => TasksRouteRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -65,6 +72,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/tasks': {
+      id: '/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksRouteImport
       parentRoute: typeof rootRoute
     }
     '/signin': {
@@ -83,36 +97,53 @@ declare module '@tanstack/react-router' {
     }
     '/tasks/$id': {
       id: '/tasks/$id'
-      path: '/tasks/$id'
+      path: '/$id'
       fullPath: '/tasks/$id'
       preLoaderRoute: typeof TasksIdImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof TasksRouteImport
     }
     '/tasks/': {
       id: '/tasks/'
-      path: '/tasks'
-      fullPath: '/tasks'
+      path: '/'
+      fullPath: '/tasks/'
       preLoaderRoute: typeof TasksIndexImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof TasksRouteImport
     }
     '/tasks/update/': {
       id: '/tasks/update/'
-      path: '/tasks/update'
+      path: '/update'
       fullPath: '/tasks/update'
       preLoaderRoute: typeof TasksUpdateIndexImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof TasksRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface TasksRouteRouteChildren {
+  TasksIdRoute: typeof TasksIdRoute
+  TasksIndexRoute: typeof TasksIndexRoute
+  TasksUpdateIndexRoute: typeof TasksUpdateIndexRoute
+}
+
+const TasksRouteRouteChildren: TasksRouteRouteChildren = {
+  TasksIdRoute: TasksIdRoute,
+  TasksIndexRoute: TasksIndexRoute,
+  TasksUpdateIndexRoute: TasksUpdateIndexRoute,
+}
+
+const TasksRouteRouteWithChildren = TasksRouteRoute._addFileChildren(
+  TasksRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/tasks': typeof TasksRouteRouteWithChildren
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/tasks/$id': typeof TasksIdRoute
-  '/tasks': typeof TasksIndexRoute
+  '/tasks/': typeof TasksIndexRoute
   '/tasks/update': typeof TasksUpdateIndexRoute
 }
 
@@ -128,6 +159,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/tasks': typeof TasksRouteRouteWithChildren
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/tasks/$id': typeof TasksIdRoute
@@ -139,16 +171,18 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/tasks'
     | '/signin'
     | '/signup'
     | '/tasks/$id'
-    | '/tasks'
+    | '/tasks/'
     | '/tasks/update'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/signin' | '/signup' | '/tasks/$id' | '/tasks' | '/tasks/update'
   id:
     | '__root__'
     | '/'
+    | '/tasks'
     | '/signin'
     | '/signup'
     | '/tasks/$id'
@@ -159,20 +193,16 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TasksRouteRoute: typeof TasksRouteRouteWithChildren
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
-  TasksIdRoute: typeof TasksIdRoute
-  TasksIndexRoute: typeof TasksIndexRoute
-  TasksUpdateIndexRoute: typeof TasksUpdateIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TasksRouteRoute: TasksRouteRouteWithChildren,
   SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
-  TasksIdRoute: TasksIdRoute,
-  TasksIndexRoute: TasksIndexRoute,
-  TasksUpdateIndexRoute: TasksUpdateIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -186,15 +216,21 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/tasks",
         "/signin",
-        "/signup",
-        "/tasks/$id",
-        "/tasks/",
-        "/tasks/update/"
+        "/signup"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/tasks": {
+      "filePath": "tasks/route.tsx",
+      "children": [
+        "/tasks/$id",
+        "/tasks/",
+        "/tasks/update/"
+      ]
     },
     "/signin": {
       "filePath": "signin.tsx"
@@ -203,13 +239,16 @@ export const routeTree = rootRoute
       "filePath": "signup.tsx"
     },
     "/tasks/$id": {
-      "filePath": "tasks/$id.tsx"
+      "filePath": "tasks/$id.tsx",
+      "parent": "/tasks"
     },
     "/tasks/": {
-      "filePath": "tasks/index.tsx"
+      "filePath": "tasks/index.tsx",
+      "parent": "/tasks"
     },
     "/tasks/update/": {
-      "filePath": "tasks/update/index.tsx"
+      "filePath": "tasks/update/index.tsx",
+      "parent": "/tasks"
     }
   }
 }

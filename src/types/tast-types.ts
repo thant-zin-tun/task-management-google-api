@@ -16,3 +16,8 @@ export type TaskList = {
 };
 
 export type TaskListsArr = TaskList[];
+
+export type TasksArr = {
+  tasks: Task[];
+  nextPageToken: string | null | undefined;
+};

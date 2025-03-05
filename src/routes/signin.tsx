@@ -39,7 +39,6 @@ export function LoginScreen() {
             client_id: clientId,
             client_secret: clientSecret,
             code: code,
-            // redirect_uri: "https://task-management-google-tasks-api.vercel.app",
             redirect_uri: domain,
           },
           {
@@ -61,6 +60,7 @@ export function LoginScreen() {
     flow: "auth-code",
     scope: "https://www.googleapis.com/auth/tasks",
   });
+
   return (
     <Box
       component="div"
