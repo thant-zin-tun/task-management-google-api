@@ -34,7 +34,6 @@ import { Task } from "../../../types/tast-types";
 import { ChangeEvent, useReducer } from "react";
 import { updateTasksDetailByID } from "../../../services/apiServices";
 import { useMutation } from "@tanstack/react-query";
-import { queryClient } from "../../../main";
 
 const style = {
   py: 0,
